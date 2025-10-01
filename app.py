@@ -1,12 +1,18 @@
+import os
+import json
 import requests
+from dotenv import load_dotenv
+from flask import Flask, render_template, request, jsonify
 
-DEFAULT_UA = (
-    "Instagram 76.0.0.15.395 Android (24/7.0; 640dpi; 1440x2560; samsung; "
-    "SM-G930F; herolte; samsungexynos8890; en_US; 138226743)"
-)
+
+app = Flask(__name__)
+load_dotenv()
+
+
+DEFAULT_UA = (os.environ.get("USER_AGENT"))
+
 
 def get_instagram_stats(username: str, user_agent: str = DEFAULT_UA, sessionid: str | None = None, timeout: int = 10) -> dict | None:
-
     url = f"https://i.instagram.com/api/v1/users/web_profile_info/?username={username}"
     headers = {
         "User-Agent": user_agent,
@@ -16,9 +22,11 @@ def get_instagram_stats(username: str, user_agent: str = DEFAULT_UA, sessionid: 
         "X-Requested-With": "XMLHttpRequest",
     }
 
+
     cookies = {}
     if sessionid:
         cookies["sessionid"] = sessionid
+
 
     try:
         resp = requests.get(url, headers=headers, cookies=cookies, timeout=timeout)
@@ -28,9 +36,12 @@ def get_instagram_stats(username: str, user_agent: str = DEFAULT_UA, sessionid: 
         print(f"Request or JSON parsing failed: {e}")
         return None
 
+
     try:
         user = j["data"]["user"]
         stats = {
+            "username": username,
+            "profile_name": user.get("full_name", username),
             "followers": user["edge_followed_by"]["count"],
             "following": user["edge_follow"]["count"],
             "total_posts": user["edge_owner_to_timeline_media"]["count"]
@@ -38,20 +49,69 @@ def get_instagram_stats(username: str, user_agent: str = DEFAULT_UA, sessionid: 
         return stats
     except KeyError as e:
         print(f"Could not extract stats from JSON: {e}")
-        # Uncomment below to debug JSON structure
-        # import json; print(json.dumps(j, indent=2)[:2000])
         return None
 
 
-if __name__ == "__main__":
-    username = "instagram"  # target username
-    sessionid = None        # optional: your sessionid cookie
+def get_instagram_stats_from_local(username: str) -> dict | None:
+    try:
+        with open("instagram_data.json", "r", encoding="utf-8") as f:
+            all_data = json.load(f)
 
-    stats = get_instagram_stats(username, sessionid=sessionid)
-    if stats:
-        print(f"{username} stats:")
-        print(f"Followers: {stats['followers']:,}")
-        print(f"Following: {stats['following']:,}")
-        print(f"Total Posts: {stats['total_posts']:,}")
-    else:
-        print("Could not retrieve stats.")
+            if username not in all_data:
+                print(f"{username} not found in local cache")
+                return None
+
+            user = all_data[username]["data"]["user"] 
+            stats = {
+                "username": username,
+                "profile_name": user.get("full_name", username),
+                "followers": user["edge_followed_by"]["count"],
+                "following": user["edge_follow"]["count"],
+                "total_posts": user["edge_owner_to_timeline_media"]["count"]
+            }
+            return stats
+    except FileNotFoundError:
+        print("instagram_data.json not found")
+        return None
+
+
+# if __name__ == "__main__":
+#     # usernames = ["instagram", "natgeo", "nasa", "marvel", "ecell_srmist", "mcdonalds", "dominos", "starbucks", "earthpix", "iss"]
+#     usernames = ["instagram"]
+#     sessionid = os.environ.get("SESSION_ID") 
+
+
+#     for username in usernames:
+#         # stats = get_instagram_stats(username, sessionid=sessionid)
+#         stats = get_instagram_stats_from_local(username)
+#         if stats:
+#             print(f"{username} stats:")
+#             print(f"Followers: {stats['followers']:,}")
+#             print(f"Following: {stats['following']:,}")
+#             print(f"Total Posts: {stats['total_posts']:,}")
+#         else:
+#             print("Could not retrieve stats.")
+
+
+@app.route('/')
+def home():
+    sessionid = os.environ.get("SESSION_ID")
+    usernames = ["instagram", "natgeo", "nasa", "marvel", "ecell_srmist", "mcdonalds", "dominos", "starbucks", "earthpix", "iss"]
+    profiles_data = []
+    
+    for username in usernames:
+        # stats = get_instagram_stats(username, sessionid=sessionid)
+        stats = get_instagram_stats_from_local(username)
+        if stats:
+            profiles_data.append(stats)
+    
+    profiles_data.sort(key=lambda x: x['followers'], reverse=True)
+    
+    for i, profile in enumerate(profiles_data, 1):
+        profile['rank'] = i
+    
+    return render_template('index.html', profiles=profiles_data)
+
+
+if __name__ == "__main__":
+    app.run(debug=True)

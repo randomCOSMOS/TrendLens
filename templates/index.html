@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>TrendLens</title>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 Instagram Dashboard</h1>
+            <p>Golden Card Task - Instagram Profile Rankings</p>
+        </div>
+
+        <div class="golden-note">
+            <h3>🏆 Special Note - Golden Card:</h3>
+            <p>Candidates who complete this task with frontend and backend integration successfully will receive direct entry into E-Cell without interview round.</p>
+        </div>
+
+        <div class="table-container">
+            {% if profiles %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Username</th>
+                        <th>Profile Name</th>
+                        <th>Followers</th>
+                        <th>Following</th>
+                        <th>Posts</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for profile in profiles %}
+                    <tr>
+                        <td class="rank-{{ profile.rank if profile.rank <= 3 else 'other' }}">
+                            {% if profile.rank == 1 %}🥇 1{% elif profile.rank == 2 %}🥈 2{% elif profile.rank == 3 %}🥉 3{% else %}{{ profile.rank }}{% endif %}
+                        </td>
+                        <td><strong>@{{ profile.username }}</strong></td>
+                        <td>{{ profile.profile_name }}</td>
+                        <td>{{ "{:,}".format(profile.followers) }}</td>
+                        <td>{{ "{:,}".format(profile.following) }}</td>
+                        <td>{{ "{:,}".format(profile.total_posts) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div style="text-align: center; padding: 3rem;">
+                <h2>No Data Available</h2>
+                <p>Please ensure instagram_data.json file exists.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
