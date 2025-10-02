@@ -4,96 +4,125 @@
 
 {% block content %}
 <div class="dashboard-container">
+    <div class="dashboard-bg">
+        <div class="float-element float-1"></div>
+        <div class="float-element float-2"></div>
+        <div class="float-element float-3"></div>
+        <div class="float-element float-4"></div>
+        <div class="float-element float-5"></div>
+    </div>
+
     <div class="dashboard-header">
         <h1 class="dashboard-title">Instagram Analytics Dashboard</h1>
         <p class="dashboard-subtitle">Real-time profile rankings and insights</p>
-        <button class="btn btn-secondary manage-btn" onclick="openManageModal()">
-            ⚙️ Manage Tracking List
-        </button>
     </div>
 
     {% if profiles %}
-        <div class="stats-overview">
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon">👥</div>
+        <div class="dashboard-controls">
+            <div class="compact-stats">
+                <div class="compact-stat-card">
+                    <div class="compact-stat-icon">👥</div>
+                    <div class="compact-stat-info">
+                        <div class="compact-stat-value">{{ profiles|length }}</div>
+                        <div class="compact-stat-label">Total Profiles</div>
+                    </div>
                 </div>
-                <div class="stat-value">{{ profiles|length }}</div>
-                <div class="stat-label">Total Profiles</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon">❤️</div>
+                <div class="compact-stat-card">
+                    <div class="compact-stat-icon">👑</div>
+                    <div class="compact-stat-info">
+                        {% set top_profile = profiles | sort(attribute='followers', reverse=true) | first %}
+                        <div class="compact-stat-value">@{{ top_profile.username }}</div>
+                        <div class="compact-stat-label">Current Top</div>
+                    </div>
                 </div>
-                <div class="stat-value">{{ "{:,}".format(profiles|sum(attribute='followers')) }}</div>
-                <div class="stat-label">Total Followers</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon">📝</div>
-                </div>
-                <div class="stat-value">{{ "{:,}".format(profiles|sum(attribute='total_posts')) }}</div>
-                <div class="stat-label">Total Posts</div>
-            </div>
+            <button class="btn btn-secondary manage-btn" onclick="openManageModal()">
+                Manage Tracking List
+            </button>
         </div>
 
         <div class="table-container">
-            <div class="table-header">
-                <h2 class="table-title">Instagram Profile Rankings</h2>
-                <p class="table-subtitle">Ranked by follower count • Updated in real-time</p>
-            </div>
-            <table class="dashboard-table">
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Username</th>
-                        <th>Profile Name</th>
-                        <th>Followers</th>
-                        <th>Following</th>
-                        <th>Posts</th>
-                        <th>Engagement</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for profile in profiles %}
-                    <tr>
-                        <td class="rank-cell">
-                            <div class="rank-badge rank-{{ profile.rank if profile.rank <= 3 else 'other' }}">
-                                {% if profile.rank == 1 %}
-                                    🥇 1
-                                {% elif profile.rank == 2 %}
-                                    🥈 2
-                                {% elif profile.rank == 3 %}
-                                    🥉 3
-                                {% else %}
+            <div class="table-wrapper">
+                <table class="dashboard-table sortable-table" id="profilesTable">
+                    <thead>
+                        <tr>
+                            <th class="rank-header">
+                                Rank
+                            </th>
+                            <th class="sortable" data-column="username" data-type="text">
+                                Username
+                                <span class="sort-indicator">⇅</span>
+                            </th>
+                            <th class="sortable" data-column="profile_name" data-type="text">
+                                Profile Name
+                                <span class="sort-indicator">⇅</span>
+                            </th>
+                            <th class="sortable" data-column="followers" data-type="number">
+                                Followers
+                                <span class="sort-indicator">⇅</span>
+                            </th>
+                            <th class="sortable" data-column="following" data-type="number">
+                                Following
+                                <span class="sort-indicator">⇅</span>
+                            </th>
+                            <th class="sortable" data-column="total_posts" data-type="number">
+                                Posts
+                                <span class="sort-indicator">⇅</span>
+                            </th>
+                            <th class="sortable" data-column="engagement" data-type="number">
+                                Posts/1K
+                                <span class="sort-indicator">⇅</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="profilesTableBody">
+                        {% for profile in profiles %}
+                        <tr class="table-row" data-profile='{{ profile | tojson | safe }}'>
+                            <td class="rank-cell">
+                                <div class="rank-badge rank-{{ profile.rank if profile.rank <= 3 else 'other' }}">
                                     {{ profile.rank }}
-                                {% endif %}
-                            </div>
-                        </td>
-                        <td>
-                            <div class="username-cell">
-                                <div class="profile-avatar">{{ profile.username[0].upper() }}</div>
-                                <span class="username-text">@{{ profile.username }}</span>
-                            </div>
-                        </td>
-                        <td>{{ profile.profile_name }}</td>
-                        <td><span class="metric-number">{{ "{:,}".format(profile.followers) }}</span></td>
-                        <td><span class="metric-number">{{ "{:,}".format(profile.following) }}</span></td>
-                        <td><span class="metric-number">{{ "{:,}".format(profile.total_posts) }}</span></td>
-                        <td>
-                            <span class="engagement-score">
-                                {% set engagement = (profile.followers / profile.total_posts * 100) if profile.total_posts > 0 else 0 %}
-                                {{ "{:.1f}%".format(engagement) }}
-                            </span>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="username-cell">
+                                    <div class="profile-pic-container">
+                                        {% if profile.profile_pic_url %}
+                                            <img src="{{ url_for('proxy_image', url=profile.profile_pic_url) }}" 
+                                                alt="{{ profile.username }}" 
+                                                class="profile-pic"
+                                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <div class="profile-avatar" style="display:none;">{{ profile.username[0].upper() }}</div>
+                                        {% else %}
+                                            <div class="profile-avatar">{{ profile.username[0].upper() }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <a href="{{ url_for('profile_detail', username=profile.username) }}" class="username-link">
+                                        <span class="username-text">@{{ profile.username }}</span>
+                                        {% if profile.is_verified %}
+                                            <span class="verified-badge">✓</span>
+                                        {% endif %}
+                                    </a>
+                                </div>
+                            </td>
+                            <td class="profile-name">{{ profile.profile_name }}</td>
+                            <td><span class="metric-number">{{ "{:,}".format(profile.followers) }}</span></td>
+                            <td><span class="metric-number">{{ "{:,}".format(profile.following) }}</span></td>
+                            <td><span class="metric-number">{{ "{:,}".format(profile.total_posts) }}</span></td>
+                            <td>
+                                <span class="engagement-score">
+                                    {% set posts_per_1k = ((profile.total_posts / profile.followers) * 1000) if profile.followers > 0 else 0 %}
+                                    {{ "{:.1f}".format(posts_per_1k) }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="update-info">
-            <span>🔄 Last updated: Real-time • Data refreshes automatically</span>
+            <span>Last updated: Real-time • Data refreshes automatically</span>
         </div>
     {% else %}
         <div class="no-data">
@@ -104,7 +133,6 @@
     {% endif %}
 </div>
 
-<!-- Manage Tracking Modal -->
 <div id="manageModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -125,7 +153,6 @@
             <div class="current-tracking-section">
                 <h4>Currently Tracking (<span id="trackingCount">0</span>/20)</h4>
                 <div id="trackingList" class="tracking-list">
-                    <!-- Dynamic content loaded here -->
                 </div>
             </div>
         </div>
@@ -138,171 +165,7 @@
 </div>
 
 <script>
-let currentTrackingList = [];
-
-// Modal functions
-function openManageModal() {
-    document.getElementById('manageModal').style.display = 'block';
-    loadTrackingList();
-}
-
-function closeManageModal() {
-    document.getElementById('manageModal').style.display = 'none';
-}
-
-// Load current tracking list
-async function loadTrackingList() {
-    try {
-        const response = await fetch('/api/tracking');
-        const data = await response.json();
-        
-        if (data.usernames) {
-            currentTrackingList = data.usernames;
-            renderTrackingList();
-        }
-    } catch (error) {
-        console.error('Error loading tracking list:', error);
-    }
-}
-
-// Render tracking list
-function renderTrackingList() {
-    const trackingList = document.getElementById('trackingList');
-    const trackingCount = document.getElementById('trackingCount');
-    
-    trackingCount.textContent = currentTrackingList.length;
-    
-    trackingList.innerHTML = '';
-    
-    if (currentTrackingList.length === 0) {
-        trackingList.innerHTML = '<p class="empty-message">No usernames in tracking list</p>';
-        return;
-    }
-    
-    currentTrackingList.forEach(username => {
-        const item = document.createElement('div');
-        item.className = 'tracking-item';
-        item.innerHTML = `
-            <div class="tracking-username">
-                <span class="username-icon">@</span>
-                <span>${username}</span>
-            </div>
-            <button class="btn-remove" onclick="removeUsername('${username}')" title="Remove">
-                🗑️
-            </button>
-        `;
-        trackingList.appendChild(item);
-    });
-}
-
-// Add username
-async function addUsername() {
-    const input = document.getElementById('newUsername');
-    const username = input.value.trim().toLowerCase();
-    
-    if (!username) {
-        alert('Please enter a username');
-        return;
-    }
-    
-    if (username.includes('@') || username.includes(' ') || username.includes('/')) {
-        alert('Please enter only the username without @, spaces, or special characters');
-        return;
-    }
-    
-    try {
-        const response = await fetch('/api/tracking/add', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username: username })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            currentTrackingList = data.usernames;
-            renderTrackingList();
-            input.value = '';
-            showMessage('Username added successfully!', 'success');
-        } else {
-            showMessage(data.error || 'Error adding username', 'error');
-        }
-    } catch (error) {
-        console.error('Error adding username:', error);
-        showMessage('Network error. Please try again.', 'error');
-    }
-}
-
-// Remove username
-async function removeUsername(username) {
-    if (!confirm(`Remove @${username} from tracking list?`)) {
-        return;
-    }
-    
-    try {
-        const response = await fetch('/api/tracking/remove', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username: username })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            currentTrackingList = data.usernames;
-            renderTrackingList();
-            showMessage('Username removed successfully!', 'success');
-        } else {
-            showMessage(data.error || 'Error removing username', 'error');
-        }
-    } catch (error) {
-        console.error('Error removing username:', error);
-        showMessage('Network error. Please try again.', 'error');
-    }
-}
-
-// Refresh dashboard
-function refreshDashboard() {
-    closeManageModal();
-    window.location.reload();
-}
-
-// Show message
-function showMessage(message, type) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `flash-message flash-${type}`;
-    messageDiv.innerHTML = `
-        <span>${message}</span>
-        <button class="flash-close" onclick="this.parentElement.remove()">×</button>
-    `;
-    
-    const flashContainer = document.querySelector('.flash-container') || document.body;
-    flashContainer.appendChild(messageDiv);
-    
-    setTimeout(() => {
-        if (messageDiv.parentElement) {
-            messageDiv.remove();
-        }
-    }, 3000);
-}
-
-// Close modal when clicking outside
-window.onclick = function(event) {
-    const modal = document.getElementById('manageModal');
-    if (event.target == modal) {
-        closeManageModal();
-    }
-}
-
-// Enter key support for adding username
-document.getElementById('newUsername').addEventListener('keypress', function(event) {
-    if (event.key === 'Enter') {
-        addUsername();
-    }
-});
+    window.profilesData = {{ profiles | tojson | safe }};
 </script>
+<script src="{{ url_for('static', filename='js/dash.js') }}"></script>
 {% endblock %}

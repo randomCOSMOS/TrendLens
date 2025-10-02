@@ -8,10 +8,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
     <title>{% block title %}TrendLens{% endblock %}</title>
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-content">
             <div class="logo">
@@ -37,7 +37,6 @@
         </div>
     </nav>
 
-    <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="flash-container">
@@ -51,12 +50,10 @@
         {% endif %}
     {% endwith %}
 
-    <!-- Main Content -->
     <main>
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-logo">
@@ -66,15 +63,6 @@
         </div>
     </footer>
 
-    <script>
-        // Auto-hide flash messages
-        setTimeout(() => {
-            document.querySelectorAll('.flash-message').forEach(msg => {
-                msg.style.opacity = '0';
-                msg.style.transform = 'translateY(-1rem)';
-                setTimeout(() => msg.remove(), 300);
-            });
-        }, 5000);
-    </script>
+    <script src="{{ url_for('static', filename='js/base.js') }}"></script>
 </body>
 </html>

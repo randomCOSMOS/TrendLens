@@ -14,7 +14,6 @@
   overflow: hidden;
 }
 
-/* Floating background elements */
 .hero-section::before,
 .hero-section::after {
   content: '';
@@ -133,7 +132,6 @@
   position: relative;
 }
 
-/* Floating mini cards around the main preview */
 .floating-card {
   position: absolute;
   background: rgba(255, 255, 255, 0.9);
@@ -281,14 +279,12 @@
   font-size: 0.75rem;
 }
 
-/* Fun stats counter animation */
 .animated-counter {
   display: inline-block;
   font-weight: 700;
   color: var(--primary);
 }
 
-/* Particle effect */
 .particles {
   position: absolute;
   top: 0;

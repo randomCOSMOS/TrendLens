@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}{{ profile.profile_name }} (@{{ profile.username }}) - TrendLens{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <!-- Floating background elements -->
+    <div class="dashboard-bg">
+        <div class="float-element float-1"></div>
+        <div class="float-element float-2"></div>
+        <div class="float-element float-3"></div>
+        <div class="float-element float-4"></div>
+        <div class="float-element float-5"></div>
+    </div>
+
+    <!-- Back button -->
+    <div class="profile-nav">
+        <a href="{{ url_for('home') }}" class="back-btn">← Back to Dashboard</a>
+    </div>
+
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-main-info">
+            <a href="https://instagram.com/{{ profile.username }}" target="_blank" class="profile-link">
+                <div class="profile-image-container">
+                    {% if profile.profile_pic_url_hd %}
+                        <img src="{{ url_for('proxy_image', url=profile.profile_pic_url_hd) }}" 
+                            alt="{{ profile.username }}" 
+                            class="profile-image"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="profile-image-placeholder" style="display:none;">{{ profile.username[0].upper() }}</div>
+                    {% else %}
+                        <div class="profile-image-placeholder">{{ profile.username[0].upper() }}</div>
+                    {% endif %}
+                </div>
+            </a>
+            
+            <div class="profile-info">
+                <div class="profile-names">
+                    <a href="https://instagram.com/{{ profile.username }}" target="_blank" class="profile-name-link">
+                        <h1 class="profile-display-name">
+                            {{ profile.profile_name }}
+                            {% if profile.is_verified %}
+                                <span class="verified-badge-large">✓</span>
+                            {% endif %}
+                        </h1>
+                    </a>
+                    <a href="https://instagram.com/{{ profile.username }}" target="_blank" class="profile-username-link">
+                        <p class="profile-username">@{{ profile.username }}</p>
+                    </a>
+                    {% if profile.biography %}
+                        <p class="profile-bio">{{ profile.biography }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-stats">
+            <div class="stat-item">
+                <span class="stat-number">{{ "{:,}".format(profile.followers) }}</span>
+                <span class="stat-label">Followers</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ "{:,}".format(profile.following) }}</span>
+                <span class="stat-label">Following</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ "{:,}".format(profile.total_posts) }}</span>
+                <span class="stat-label">Posts</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Cards -->
+    <div class="analysis-grid">
+        <!-- Profile Completeness -->
+        <div class="analysis-card">
+            <div class="card-header">
+                <h3>Profile Completeness</h3>
+                <div class="score-circle">
+                    <span class="score">{{ profile.completeness_score }}%</span>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="checklist">
+                    <div class="check-item {{ 'completed' if profile.completeness_details.bio else 'missing' }}">
+                        <span class="check-icon">{{ '✓' if profile.completeness_details.bio else '✗' }}</span>
+                        <span>Bio filled out</span>
+                    </div>
+                    <div class="check-item {{ 'completed' if profile.completeness_details.profile_pic else 'missing' }}">
+                        <span class="check-icon">{{ '✓' if profile.completeness_details.profile_pic else '✗' }}</span>
+                        <span>Profile picture</span>
+                    </div>
+                    <div class="check-item {{ 'completed' if profile.completeness_details.external_url else 'missing' }}">
+                        <span class="check-icon">{{ '✓' if profile.completeness_details.external_url else '✗' }}</span>
+                        <span>External link</span>
+                    </div>
+                    <div class="check-item {{ 'completed' if profile.completeness_details.verified else 'missing' }}">
+                        <span class="check-icon">{{ '✓' if profile.completeness_details.verified else '✗' }}</span>
+                        <span>Verified account</span>
+                    </div>
+                    <div class="check-item {{ 'completed' if profile.completeness_details.active_posting else 'missing' }}">
+                        <span class="check-icon">{{ '✓' if profile.completeness_details.active_posting else '✗' }}</span>
+                        <span>Active posting (10+ posts)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Strategy -->
+        <div class="analysis-card">
+            <div class="card-header">
+                <h3>Content Strategy</h3>
+                <div class="score-circle">
+                    <span class="score">{{ profile.content_score }}%</span>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="checklist">
+                    <div class="check-item {{ 'completed' if profile.content_details.reels else 'missing' }}">
+                        <span class="check-icon">{{ '✓' if profile.content_details.reels else '✗' }}</span>
+                        <span>Uses Reels</span>
+                    </div>
+                    <div class="check-item">
+                        <span class="check-icon">{{ '✓' if profile.content_details.highlights > 0 else '✗' }}</span>
+                        <span>Story Highlights ({{ profile.content_details.highlights }})</span>
+                    </div>
+                    <div class="check-item {{ 'completed' if profile.content_details.ar_effects else 'missing' }}">
+                        <span class="check-icon">{{ '✓' if profile.content_details.ar_effects else '✗' }}</span>
+                        <span>Creates AR Effects</span>
+                    </div>
+                    <div class="check-item {{ 'completed' if profile.content_details.professional else 'missing' }}">
+                        <span class="check-icon">{{ '✓' if profile.content_details.professional else '✗' }}</span>
+                        <span>Professional Account</span>
+                    </div>
+                    {% if profile.category_name %}
+                    <div class="category-info">
+                        <span class="category-label">Category:</span>
+                        <span class="category-value">{{ profile.category_name }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Metrics -->
+    <div class="advanced-metrics-card">
+        <h3>Advanced Analytics</h3>
+        <div class="metrics-grid">
+            <div class="metric-box">
+                <span class="metric-value">{{ "{:.1f}".format(profile.advanced_metrics.ff_ratio) }}</span>
+                <span class="metric-label">Follower/Following Ratio</span>
+            </div>
+            <div class="metric-box">
+                <span class="metric-value">{{ "{:.1f}".format(profile.advanced_metrics.posts_per_1k_followers) }}</span>
+                <span class="metric-label">Posts per 1K Followers</span>
+            </div>
+            <div class="metric-box">
+                <span class="metric-value">{{ "{:.0f}%".format(profile.advanced_metrics.activity_score) }}</span>
+                <span class="metric-label">Content Activity Score</span>
+            </div>
+            <div class="metric-box">
+                <span class="metric-value">{{ "{:.0f}%".format(profile.advanced_metrics.audience_quality) }}</span>
+                <span class="metric-label">Audience Quality Score</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.profilesData = [{{ profile | tojson | safe }}];
+</script>
+{% endblock %}

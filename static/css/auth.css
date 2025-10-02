@@ -6,7 +6,6 @@
   overflow: hidden;
 }
 
-/* Left side - Form */
 .auth-left {
   flex: 1;
   display: flex;
@@ -17,7 +16,6 @@
   backdrop-filter: blur(10px);
 }
 
-/* Right side - Welcome text */
 .auth-right {
   flex: 1;
   display: flex;
@@ -174,7 +172,6 @@
   margin-top: 0.25rem;
 }
 
-/* Add some decorative elements */
 .auth-right::before {
   content: '';
   position: absolute;
@@ -208,7 +205,6 @@
   }
 }
 
-/* Mobile responsiveness */
 @media (max-width: 1024px) {
   .auth-wrapper {
     flex-direction: column;
