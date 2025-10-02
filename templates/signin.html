@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - TrendLens{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <img src="{{ url_for('static', filename='images/auth-bg.jpg') }}" alt="Background" class="auth-bg">
+    <div class="auth-overlay"></div>
+    
+    <div class="auth-content">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2 class="auth-title">Create account</h2>
+                <p class="auth-subtitle">Start your TrendLens journey today</p>
+            </div>
+            
+            <form class="auth-form" method="POST">
+                <div class="form-group">
+                    <label class="form-label" for="name">Full Name</label>
+                    <input class="form-input" type="text" id="name" name="name" required autocomplete="name">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="username">Username</label>
+                    <input class="form-input" type="text" id="username" name="username" required autocomplete="username">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input class="form-input" type="password" id="password" name="password" required autocomplete="new-password" minlength="6">
+                    <div class="password-hint">Password must be at least 6 characters</div>
+                </div>
+                
+                <button type="submit" class="btn btn-full">Create Account</button>
+            </form>
+            
+            <div class="auth-divider">
+                <span>or</span>
+            </div>
+            
+            <div class="auth-footer">
+                Already have an account? <a href="{{ url_for('login') }}" class="auth-link">Sign in</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

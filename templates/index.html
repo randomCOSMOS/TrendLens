@@ -1,26 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <title>TrendLens</title>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🏆 Instagram Dashboard</h1>
-            <p>Golden Card Task - Instagram Profile Rankings</p>
-        </div>
+{% extends "base.html" %}
 
-        <div class="golden-note">
-            <h3>🏆 Special Note - Golden Card:</h3>
-            <p>Candidates who complete this task with frontend and backend integration successfully will receive direct entry into E-Cell without interview round.</p>
+{% block title %}Dashboard - TrendLens{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Instagram Analytics Dashboard</h1>
+        <p class="dashboard-subtitle">Real-time profile rankings and insights</p>
+    </div>
+
+    {% if profiles %}
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">👥</div>
+                </div>
+                <div class="stat-value">{{ profiles|length }}</div>
+                <div class="stat-label">Total Profiles</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">❤️</div>
+                </div>
+                <div class="stat-value">{{ "{:,}".format(profiles|sum(attribute='followers')) }}</div>
+                <div class="stat-label">Total Followers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">📝</div>
+                </div>
+                <div class="stat-value">{{ "{:,}".format(profiles|sum(attribute='total_posts')) }}</div>
+                <div class="stat-label">Total Posts</div>
+            </div>
         </div>
 
         <div class="table-container">
-            {% if profiles %}
-            <table>
+            <div class="table-header">
+                <h2 class="table-title">Instagram Profile Rankings</h2>
+                <p class="table-subtitle">Ranked by follower count • Updated in real-time</p>
+            </div>
+            <table class="dashboard-table">
                 <thead>
                     <tr>
                         <th>Rank</th>
@@ -29,30 +48,55 @@
                         <th>Followers</th>
                         <th>Following</th>
                         <th>Posts</th>
+                        <th>Engagement</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for profile in profiles %}
                     <tr>
-                        <td class="rank-{{ profile.rank if profile.rank <= 3 else 'other' }}">
-                            {% if profile.rank == 1 %}🥇 1{% elif profile.rank == 2 %}🥈 2{% elif profile.rank == 3 %}🥉 3{% else %}{{ profile.rank }}{% endif %}
+                        <td class="rank-cell">
+                            <div class="rank-badge rank-{{ profile.rank if profile.rank <= 3 else 'other' }}">
+                                {% if profile.rank == 1 %}
+                                    🥇 1
+                                {% elif profile.rank == 2 %}
+                                    🥈 2
+                                {% elif profile.rank == 3 %}
+                                    🥉 3
+                                {% else %}
+                                    {{ profile.rank }}
+                                {% endif %}
+                            </div>
                         </td>
-                        <td><strong>@{{ profile.username }}</strong></td>
+                        <td>
+                            <div class="username-cell">
+                                <div class="profile-avatar">{{ profile.username[0].upper() }}</div>
+                                <span class="username-text">@{{ profile.username }}</span>
+                            </div>
+                        </td>
                         <td>{{ profile.profile_name }}</td>
-                        <td>{{ "{:,}".format(profile.followers) }}</td>
-                        <td>{{ "{:,}".format(profile.following) }}</td>
-                        <td>{{ "{:,}".format(profile.total_posts) }}</td>
+                        <td><span class="metric-number">{{ "{:,}".format(profile.followers) }}</span></td>
+                        <td><span class="metric-number">{{ "{:,}".format(profile.following) }}</span></td>
+                        <td><span class="metric-number">{{ "{:,}".format(profile.total_posts) }}</span></td>
+                        <td>
+                            <span class="engagement-score">
+                                {% set engagement = (profile.followers / profile.total_posts * 100) if profile.total_posts > 0 else 0 %}
+                                {{ "{:.1f}%".format(engagement) }}
+                            </span>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            {% else %}
-            <div style="text-align: center; padding: 3rem;">
-                <h2>No Data Available</h2>
-                <p>Please ensure instagram_data.json file exists.</p>
-            </div>
-            {% endif %}
         </div>
-    </div>
-</body>
-</html>
+
+        <div class="update-info">
+            <span>🔄 Last updated: Real-time • Data refreshes automatically</span>
+        </div>
+    {% else %}
+        <div class="no-data">
+            <h2>No Data Available</h2>
+            <p>Please ensure instagram_data.json file exists with profile data.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

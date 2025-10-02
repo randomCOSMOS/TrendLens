@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}TrendLens - Instagram Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="landing-container">
+    <section class="hero-section">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">Track Instagram Analytics Like Never Before</h1>
+                <p class="hero-subtitle">
+                    Get real-time insights, rankings, and detailed analytics for Instagram profiles. 
+                    Perfect for marketers, influencers, and businesses.
+                </p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('signin') }}" class="btn btn-lg">Get Started Free</a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline btn-lg">Sign In</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="dashboard-preview">
+                    <div class="preview-header">
+                        <span>📊</span>
+                        <span>Instagram Rankings</span>
+                    </div>
+                    <div class="preview-items">
+                        <div class="preview-item">
+                            <span class="preview-rank">🥇</span>
+                            <div class="preview-info">
+                                <span class="preview-username">@instagram</span>
+                                <span class="preview-followers">627M followers</span>
+                            </div>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-rank">🥈</span>
+                            <div class="preview-info">
+                                <span class="preview-username">@natgeo</span>
+                                <span class="preview-followers">283M followers</span>
+                            </div>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-rank">🥉</span>
+                            <div class="preview-info">
+                                <span class="preview-username">@nasa</span>
+                                <span class="preview-followers">95.8M followers</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
