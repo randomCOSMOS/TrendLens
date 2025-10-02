@@ -4,7 +4,6 @@
 
 {% block content %}
 <div class="profile-container">
-    <!-- Floating background elements -->
     <div class="dashboard-bg">
         <div class="float-element float-1"></div>
         <div class="float-element float-2"></div>
@@ -13,12 +12,10 @@
         <div class="float-element float-5"></div>
     </div>
 
-    <!-- Back button -->
     <div class="profile-nav">
         <a href="{{ url_for('home') }}" class="back-btn">← Back to Dashboard</a>
     </div>
 
-    <!-- Profile Header -->
     <div class="profile-header">
         <div class="profile-main-info">
             <a href="https://instagram.com/{{ profile.username }}" target="_blank" class="profile-link">
@@ -71,9 +68,7 @@
         </div>
     </div>
 
-    <!-- Analysis Cards -->
     <div class="analysis-grid">
-        <!-- Profile Completeness -->
         <div class="analysis-card">
             <div class="card-header">
                 <h3>Profile Completeness</h3>
@@ -107,7 +102,6 @@
             </div>
         </div>
 
-        <!-- Content Strategy -->
         <div class="analysis-card">
             <div class="card-header">
                 <h3>Content Strategy</h3>
@@ -144,7 +138,6 @@
         </div>
     </div>
 
-    <!-- Advanced Metrics -->
     <div class="advanced-metrics-card">
         <h3>Advanced Analytics</h3>
         <div class="metrics-grid">
