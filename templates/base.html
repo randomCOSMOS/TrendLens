@@ -22,15 +22,15 @@
             <div class="nav-actions">
                 {% if session.get('user_name') %}
                     <span class="user-greeting">Hello, {{ session.get('user_name') }}!</span>
-                    <a href="{{ url_for('logout') }}" class="btn btn-outline">Logout</a>
+                    <a href="{{ url_for('logout') }}" class="button btn-outline">Logout</a>
                 {% else %}
                     {% if request.endpoint == 'login' %}
-                        <a href="{{ url_for('signin') }}" class="btn btn-outline">Sign Up</a>
+                        <a href="{{ url_for('signin') }}" class="button btn-outline">Sign Up</a>
                     {% elif request.endpoint == 'signin' %}
-                        <a href="{{ url_for('login') }}" class="btn btn-outline">Login</a>
+                        <a href="{{ url_for('login') }}" class="button btn-outline">Login</a>
                     {% else %}
-                        <a href="{{ url_for('login') }}" class="btn btn-outline">Login</a>
-                        <a href="{{ url_for('signin') }}" class="btn">Sign Up</a>
+                        <a href="{{ url_for('login') }}" class="button btn-outline">Login</a>
+                        <a href="{{ url_for('signin') }}" class="button">Sign Up</a>
                     {% endif %}
                 {% endif %}
             </div>

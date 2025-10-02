@@ -4,6 +4,18 @@
 
 {% block content %}
 <div class="landing-container">
+    <!-- Floating particles -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
     <section class="hero-section">
         <div class="hero-content">
             <div class="hero-text">
@@ -18,6 +30,11 @@
                 </div>
             </div>
             <div class="hero-visual">
+                <!-- Floating mini cards -->
+                <div class="floating-card">📈 +127% Growth</div>
+                <div class="floating-card">⚡ Real-time</div>
+                <div class="floating-card">🎯 Easy</div>
+
                 <div class="dashboard-preview">
                     <div class="preview-header">
                         <span>📊</span>
@@ -51,4 +68,35 @@
         </div>
     </section>
 </div>
+
+<script>
+// Add some interactive elements
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate numbers on preview items
+    const followers = document.querySelectorAll('.preview-followers');
+    followers.forEach(follower => {
+        const text = follower.textContent;
+        follower.style.opacity = '0';
+        setTimeout(() => {
+            follower.style.opacity = '1';
+            follower.style.transition = 'all 0.5s ease';
+        }, Math.random() * 1000 + 1000);
+    });
+
+    // Add mouse move parallax effect
+    document.addEventListener('mousemove', (e) => {
+        const preview = document.querySelector('.dashboard-preview');
+        const x = (e.clientX / window.innerWidth) * 100;
+        const y = (e.clientY / window.innerHeight) * 100;
+        
+        preview.style.transform = `translateY(-5px) scale(1.02) rotateY(${(x - 50) * 0.1}deg) rotateX(${(y - 50) * -0.1}deg)`;
+    });
+
+    // Reset on mouse leave
+    document.addEventListener('mouseleave', () => {
+        const preview = document.querySelector('.dashboard-preview');
+        preview.style.transform = 'translateY(-5px) scale(1.02)';
+    });
+});
+</script>
 {% endblock %}

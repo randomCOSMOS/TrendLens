@@ -7,6 +7,9 @@
     <div class="dashboard-header">
         <h1 class="dashboard-title">Instagram Analytics Dashboard</h1>
         <p class="dashboard-subtitle">Real-time profile rankings and insights</p>
+        <button class="btn btn-secondary manage-btn" onclick="openManageModal()">
+            ⚙️ Manage Tracking List
+        </button>
     </div>
 
     {% if profiles %}
@@ -95,8 +98,211 @@
     {% else %}
         <div class="no-data">
             <h2>No Data Available</h2>
-            <p>Please ensure instagram_data.json file exists with profile data.</p>
+            <p>Add some Instagram usernames to your tracking list to see analytics!</p>
+            <button class="btn btn-primary" onclick="openManageModal()">Add Usernames</button>
         </div>
     {% endif %}
 </div>
+
+<!-- Manage Tracking Modal -->
+<div id="manageModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Manage Tracking List</h3>
+            <span class="close" onclick="closeManageModal()">&times;</span>
+        </div>
+        
+        <div class="modal-body">
+            <div class="add-username-section">
+                <h4>Add New Username</h4>
+                <div class="add-form">
+                    <input type="text" id="newUsername" placeholder="Enter Instagram username (without @)" maxlength="30">
+                    <button class="btn btn-primary" onclick="addUsername()">Add</button>
+                </div>
+                <div class="username-hint">Enter username without @ symbol (e.g., "instagram", "natgeo")</div>
+            </div>
+            
+            <div class="current-tracking-section">
+                <h4>Currently Tracking (<span id="trackingCount">0</span>/20)</h4>
+                <div id="trackingList" class="tracking-list">
+                    <!-- Dynamic content loaded here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeManageModal()">Close</button>
+            <button class="btn btn-primary" onclick="refreshDashboard()">Refresh Dashboard</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentTrackingList = [];
+
+// Modal functions
+function openManageModal() {
+    document.getElementById('manageModal').style.display = 'block';
+    loadTrackingList();
+}
+
+function closeManageModal() {
+    document.getElementById('manageModal').style.display = 'none';
+}
+
+// Load current tracking list
+async function loadTrackingList() {
+    try {
+        const response = await fetch('/api/tracking');
+        const data = await response.json();
+        
+        if (data.usernames) {
+            currentTrackingList = data.usernames;
+            renderTrackingList();
+        }
+    } catch (error) {
+        console.error('Error loading tracking list:', error);
+    }
+}
+
+// Render tracking list
+function renderTrackingList() {
+    const trackingList = document.getElementById('trackingList');
+    const trackingCount = document.getElementById('trackingCount');
+    
+    trackingCount.textContent = currentTrackingList.length;
+    
+    trackingList.innerHTML = '';
+    
+    if (currentTrackingList.length === 0) {
+        trackingList.innerHTML = '<p class="empty-message">No usernames in tracking list</p>';
+        return;
+    }
+    
+    currentTrackingList.forEach(username => {
+        const item = document.createElement('div');
+        item.className = 'tracking-item';
+        item.innerHTML = `
+            <div class="tracking-username">
+                <span class="username-icon">@</span>
+                <span>${username}</span>
+            </div>
+            <button class="btn-remove" onclick="removeUsername('${username}')" title="Remove">
+                🗑️
+            </button>
+        `;
+        trackingList.appendChild(item);
+    });
+}
+
+// Add username
+async function addUsername() {
+    const input = document.getElementById('newUsername');
+    const username = input.value.trim().toLowerCase();
+    
+    if (!username) {
+        alert('Please enter a username');
+        return;
+    }
+    
+    if (username.includes('@') || username.includes(' ') || username.includes('/')) {
+        alert('Please enter only the username without @, spaces, or special characters');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/tracking/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username: username })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            currentTrackingList = data.usernames;
+            renderTrackingList();
+            input.value = '';
+            showMessage('Username added successfully!', 'success');
+        } else {
+            showMessage(data.error || 'Error adding username', 'error');
+        }
+    } catch (error) {
+        console.error('Error adding username:', error);
+        showMessage('Network error. Please try again.', 'error');
+    }
+}
+
+// Remove username
+async function removeUsername(username) {
+    if (!confirm(`Remove @${username} from tracking list?`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/tracking/remove', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username: username })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            currentTrackingList = data.usernames;
+            renderTrackingList();
+            showMessage('Username removed successfully!', 'success');
+        } else {
+            showMessage(data.error || 'Error removing username', 'error');
+        }
+    } catch (error) {
+        console.error('Error removing username:', error);
+        showMessage('Network error. Please try again.', 'error');
+    }
+}
+
+// Refresh dashboard
+function refreshDashboard() {
+    closeManageModal();
+    window.location.reload();
+}
+
+// Show message
+function showMessage(message, type) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `flash-message flash-${type}`;
+    messageDiv.innerHTML = `
+        <span>${message}</span>
+        <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+    `;
+    
+    const flashContainer = document.querySelector('.flash-container') || document.body;
+    flashContainer.appendChild(messageDiv);
+    
+    setTimeout(() => {
+        if (messageDiv.parentElement) {
+            messageDiv.remove();
+        }
+    }, 3000);
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('manageModal');
+    if (event.target == modal) {
+        closeManageModal();
+    }
+}
+
+// Enter key support for adding username
+document.getElementById('newUsername').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        addUsername();
+    }
+});
+</script>
 {% endblock %}

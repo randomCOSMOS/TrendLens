@@ -4,25 +4,23 @@
 
 {% block content %}
 <div class="auth-wrapper">
-    <img src="{{ url_for('static', filename='images/auth-bg.jpg') }}" alt="Background" class="auth-bg">
-    <div class="auth-overlay"></div>
-    
-    <div class="auth-content">
+    <!-- Left side - Form -->
+    <div class="auth-left">
         <div class="auth-card">
             <div class="auth-header">
-                <h2 class="auth-title">Welcome back</h2>
-                <p class="auth-subtitle">Sign in to your TrendLens account</p>
+                <h2 class="auth-title">Sign in to your account</h2>
+                <p class="auth-subtitle">Enter your credentials to access TrendLens</p>
             </div>
             
             <form class="auth-form" method="POST">
                 <div class="form-group">
                     <label class="form-label" for="username">Username</label>
-                    <input class="form-input" type="text" id="username" name="username" required autocomplete="username">
+                    <input class="form-input" type="text" id="username" name="username" required autocomplete="username" placeholder="Enter your username">
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label" for="password">Password</label>
-                    <input class="form-input" type="password" id="password" name="password" required autocomplete="current-password">
+                    <input class="form-input" type="password" id="password" name="password" required autocomplete="current-password" placeholder="Enter your password">
                 </div>
                 
                 <button type="submit" class="btn btn-full">Sign In</button>
@@ -33,8 +31,16 @@
             </div>
             
             <div class="auth-footer">
-                Don't have an account? <a href="{{ url_for('signin') }}" class="auth-link">Sign up</a>
+                Don't have an account? <a href="{{ url_for('signin') }}" class="auth-link">Create one here</a>
             </div>
+        </div>
+    </div>
+    
+    <!-- Right side - Welcome text -->
+    <div class="auth-right">
+        <div class="welcome-content">
+            <h1>Welcome<br>back!</h1>
+            <p>Sign in to access your Instagram analytics dashboard and track your favorite profiles in real-time.</p>
         </div>
     </div>
 </div>
